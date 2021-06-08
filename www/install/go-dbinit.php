@@ -34,14 +34,15 @@ $validfields = array('gametype','modtype','overwrite','dropdb');
 $cms->theme->assign_request_vars($validfields, true);
 
 $gametypes = array(
-	'cod4'		=> "Call of Duty 4"
+	'halflife'	=> "Half-Life"
 );
 
 $modtypes = array(
+	'hldm'		=> "Half-Life Deathmatch"
 );
 
 $gamesupport = array(
-	'cod4'		=> array( )
+	'halflife'	=> array( 'hldm' )
 );
 
 // make DB connection

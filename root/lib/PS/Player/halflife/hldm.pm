@@ -17,65 +17,27 @@
 #	You should have received a copy of the GNU General Public License
 #	along with PsychoStats.  If not, see <http://www.gnu.org/licenses/>.
 #
-#	$Id: cod4.pm 497 2008-06-19 16:10:55Z lifo $
+#	$Id: hldm.pm 450 2008-05-20 11:34:52Z lifo $
 #
-package PS::Player::cod4;
+#	Halflife Deathmatch sucks and doesn't really have any extra stats
+#
+package PS::Player::halflife::hldm;
 
 use strict;
 use warnings;
 use base qw( PS::Player );
 
-our $TYPES = {
-	allieskills		=> '+',
-	allieskillspct		=> [ percent2 => qw( allieskills axiskills ) ],
-	axiskills		=> '+',
-	axiskillspct		=> [ percent2 => qw( axiskills allieskills ) ],
-	alliesdeaths		=> '+',
-	axisdeaths		=> '+',
-	joinedallies		=> '+',
-	joinedaxis		=> '+',
-	allieswon		=> '+',
-	allieswonpct		=> [ percent2 => qw( allieswon axiswon ) ],
-	axiswon			=> '+',
-	axiswonpct		=> [ percent2 => qw( axiswon allieswon ) ],
-	allieslost		=> '+',
-	axislost		=> '+',
-};
+our $VERSION = '1.00.' . (('$Rev: 450 $' =~ /(\d+)/)[0] || '000');
 
-# Player map stats are the same as the basic stats
+our $TYPES = {};
 our $TYPES_MAPS = { %$TYPES };
 
 # override parent methods to combine types
 sub get_types { return { %{$_[0]->SUPER::get_types}, %$TYPES } }
 sub get_types_maps { return { %{$_[0]->SUPER::get_types_maps}, %$TYPES_MAPS } }
-#sub get_types_roles { return { %{$_[0]->SUPER::get_types_roles}, %$TYPES_ROLES } }
 
 # allows the parent to determine our local types
 sub mod_types { $TYPES };
 sub mod_types_maps { $TYPES_MAPS };
-#sub mod_types_roles { $TYPES_ROLES };
-
-sub _init {
-	my ($self) = @_;
-	$self->SUPER::_init;
-
-#	$self->{role} = '';
-#	$self->{roles} = {};
-	$self->{mod} = {};
-#	$self->{mod_roles} = {};
-
-	$self->{holding_weapon} = '';
-
-	return $self;
-}
-
-sub has_mod_tables { 1 }
-sub has_roles { 0 }
-
-# keeps track of what weapon the player is holding
-sub weapon {
-	my ($self, $w) = @_;
-	$self->{holding_weapon} = $w;
-}
 
 1;

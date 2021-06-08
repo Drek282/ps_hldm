@@ -563,7 +563,8 @@
 			var params;
 			if (typeof obj != 'object') return obj;
 			if (!nodefaults) {
-				if (!obj.gametype) obj.gametype = 'cod4';
+				if (!obj.gametype) obj.gametype = 'halflife';
+				if (!obj.modtype) obj.modtype = 'hldm';
 				if (!obj.map) obj.map = 'unknown';
 			}
 			params = [ 'code', 'start_time', 'end_time', 'max_idx',
@@ -1282,7 +1283,7 @@
 				// team is already a string, so return it
 				return team.toUpperCase();
 			}
-			if (this.game.gametype == 'cod4') {
+			if (this.game.gametype == 'halflife') {
 				if (t == 1) {
 					name = 'SPECTATOR';
 				}
@@ -2257,7 +2258,7 @@
 
 	// returns an array of the teams for the current game
 	function team_names(gametype, modtype) {
-		if (gametype == 'cod4') {
+		if (gametype == 'halflife') {
 			switch (modtype) {
 			}
 		}

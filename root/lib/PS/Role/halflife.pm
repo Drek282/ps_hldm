@@ -17,35 +17,15 @@
 #	You should have received a copy of the GNU General Public License
 #	along with PsychoStats.  If not, see <http://www.gnu.org/licenses/>.
 #
-#	$Id: cod4.pm 497 2008-06-19 16:10:55Z lifo $
+#	$Id: halflife.pm 450 2008-05-20 11:34:52Z lifo $
 #
-package PS::Map::cod4;
+package PS::Role::halflife;
 
 use strict;
 use warnings;
-use base qw( PS::Map );
+use base qw( PS::Role );
 
-our $TYPES = {
-	allieskills		=> '+',
-	allieskillspct		=> [ percent2 => qw( allieskills axiskills ) ],
-	axiskills		=> '+',
-	axiskillspct		=> [ percent2 => qw( axiskills allieskills ) ],
-	joinedallies		=> '+',
-	joinedaxis		=> '+',
-	allieswon		=> '+',
-	allieswonpct		=> [ percent2 => qw( allieswon axiswon ) ],
-	axiswon			=> '+',
-	axiswonpct		=> [ percent2 => qw( axiswon allieswon ) ],
-	allieslost		=> '+',
-	axislost		=> '+',
-};
+our $VERSION = '1.00.' . (('$Rev: 450 $' =~ /(\d+)/)[0] || '000');
 
-# override parent methods to combine types
-sub get_types { return { %{$_[0]->SUPER::get_types}, %$TYPES } }
-
-# allows the parent to determine our local types
-sub mod_types { $TYPES };
-
-sub has_mod_tables { 1 }
 
 1;

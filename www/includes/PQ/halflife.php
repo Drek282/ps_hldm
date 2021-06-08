@@ -22,52 +22,52 @@
  */
 
 /**
-	This PsychoQuery::COD4 class will automatically determine if the server being queried is HL1 or C4.
+	This PsychoQuery::HALFLIFE class will automatically determine if the server being queried is HL1 or HL2.
 	The query codes below are for your reference, incase you're interested. It should be noted that 
-	the recent versions of HL1 use the same query codes as C4 (response codes are slightly different).
+	the recent versions of HL1 use the same query codes as HL2 (response codes are slightly different).
 	That means that the older HL1 versions (ie: before Steam) may not work correctly.
 
-	There is an 'oldcod4' query_type that can be used to force older cod4 queries.
+	There is an 'oldhalflife' query_type that can be used to force older halflife queries.
 
-	Query:		HL1 send:	HL1 recv: 	C4 send: 	C4 recv:
+	Query:		HL1 send:	HL1 recv: 	HL2 send: 	HL2 recv:
 	'info'		'T'		'm'		'T'		'I'	(different packet stream)
 	'players'	'U'		'D'		'U'		'D'	(the same)
 	'rules'		'V'		'o'		'V'		'E'	(different codes, same packet stream)
 	'ping'		'i'		'j'		'i'		'j'	(the same)
 
-	RCON commands are also supported for both versions, HL1 and C4 (transparently)
+	RCON commands are also supported for both versions, HL1 and HL2 (transparently)
 
 	Source servers that use compression on responses are supported as well.
 
 **/
 
 if (!defined("CLASS_PQ_PHP")) die("Access Denied!");
-if (defined("CLASS_PQ_COD4_PHP")) return 1;
-define("CLASS_PQ_COD4_PHP", 1);
+if (defined("CLASS_PQ_HALFLIFE_PHP")) return 1;
+define("CLASS_PQ_HALFLIFE_PHP", 1);
 
 // REGION global constants for master server queries. Use these when using query_master()
-define("PQ_C4_REGION_USEAST", 		0);
-define("PQ_C4_REGION_USWEST", 		1);
-define("PQ_C4_REGION_SOUTHAMERICA", 	2);
-define("PQ_C4_REGION_EUROPE", 		3);
-define("PQ_C4_REGION_ASIA", 		4);
-define("PQ_C4_REGION_AUSTRALIA", 	5);
-define("PQ_C4_REGION_MIDDLEEAST", 	6);
-define("PQ_C4_REGION_AFRICA", 		7);
+define("PQ_HL2_REGION_USEAST", 		0);
+define("PQ_HL2_REGION_USWEST", 		1);
+define("PQ_HL2_REGION_SOUTHAMERICA", 	2);
+define("PQ_HL2_REGION_EUROPE", 		3);
+define("PQ_HL2_REGION_ASIA", 		4);
+define("PQ_HL2_REGION_AUSTRALIA", 	5);
+define("PQ_HL2_REGION_MIDDLEEAST", 	6);
+define("PQ_HL2_REGION_AFRICA", 		7);
 
-// C4 RCON response codes, these are never used outside of the class.
-define("PQ_C4_SERVERDATA_EXECCOMMAND",		2);
-define("PQ_C4_SERVERDATA_AUTH",		3);
-define("PQ_C4_SERVERDATA_AUTH_RESPONSE", 	2);
-define("PQ_C4_SERVERDATA_RESPONSE_VALUE", 	0);
+// HL2 RCON response codes, these are never used outside of the class.
+define("PQ_HL2_SERVERDATA_EXECCOMMAND",		2);
+define("PQ_HL2_SERVERDATA_AUTH",		3);
+define("PQ_HL2_SERVERDATA_AUTH_RESPONSE", 	2);
+define("PQ_HL2_SERVERDATA_RESPONSE_VALUE", 	0);
 
-class PQ_cod4 extends PQ_PARENT {
+class PQ_halflife extends PQ_PARENT {
 
 function __construct($conf) {
-	$this->PQ_cod4($conf);
+	$this->PQ_halflife($conf);
 }
 
-function PQ_cod4($conf) {
+function PQ_halflife($conf) {
 	$this->conf = $conf;		// always save the config to the class variable first
 	$this->init();			// always run the class initialization method
 }
@@ -77,7 +77,7 @@ function init() {
 	// add your own initialization steps here.
 	// ...
 
-	$this->cod4_version = 0;	// 0 = unknown version
+	$this->halflife_version = 0;	// 0 = unknown version
 	$this->infostr = 'TSource Engine Query' . pack('x');
 	$this->plrstr = 'U';
 	$this->rulestr = 'V';
@@ -89,46 +89,39 @@ function init() {
 }
 
 function gametype() {
-	return "cod4";
+	return "halflife";
 }
 
 function modtype() {
 	$m = $this->data['gamedir'];
-	switch ($m) {
-		case 'czero': 	return 'cstrike';
-		case 'hl2dm': 	return 'hldm';
-		case 'ns': 	return 'natural';
-		case 'tf':	return 'tf2';
-		default: 	return $m;
-	}
 	return $m;
 }
 
-// sets and returns the cod4 version to properly decode packets
+// sets and returns the halflife version to properly decode packets
 function _hlver($header=NULL) {
 	// If no header is passed in we use $this->raw instead.
 	// If no header was passed in and we already have a version, return it.
 	// If you want to force a version check, pass in the header bytes yourself.
-	if ($header === NULL and $this->cod4_version) {
-		return $this->cod4_version;
+	if ($header === NULL and $this->halflife_version) {
+		return $this->halflife_version;
 	}
 	if ($header === NULL) {
 		$header = $this->raw;
 	}
 	if ($header === NULL) {		// if header is still null, we have no packet bytes to check
-		$this->cod4_version = 0;		
+		$this->halflife_version = 0;		
 	} else {
-		if ($this->DEBUG) print "DEBUG: Determing cod4 version from header packet:\n" . $this->hexdump(substr($header,0,16));
+		if ($this->DEBUG) print "DEBUG: Determing halflife version from header packet:\n" . $this->hexdump(substr($header,0,16));
 		$code = @substr($header, 4, 1);
 		if (!$code) {
-			$this->cod4_version = 0;
+			$this->halflife_version = 0;
 		} elseif (in_array($code, array('m', 'o'))) {
-			$this->cod4_version = 1;
+			$this->halflife_version = 1;
 		} else {
-			$this->cod4_version = 2;
+			$this->halflife_version = 2;
 		}
 	}
-	return $this->cod4_version;
+	return $this->halflife_version;
 }
 
 function _getchallenge($ip=NULL) {
@@ -162,8 +155,10 @@ function query_info($ip=NULL) {
 		$this->data['ipport'] = $ip;
 		list($this->data['ip'], $this->data['port']) = explode(':', $this->data['ipport']);
 
-		if ($ver == 2) {
-			return $this->_parse_info_cod4();
+		if ($ver == 1) {
+			return $this->_parse_info_halflife1();
+		} elseif ($ver == 2) {
+			return $this->_parse_info_halflife2();
 		} else {
 			$this->errstr = "Unknown server version; Unable to decode network packet";
 			trigger_error($this->errstr, E_USER_WARNING);
@@ -173,9 +168,37 @@ function query_info($ip=NULL) {
 	return FALSE;
 }
 
-// internal function to parse cod4x 'info' packets
-function _parse_info_cod4() {
-	if ($this->DEBUG) print "DEBUG: Parsing COD4X info packet...\n";
+// internal function to parse halflife verion 1 'info' packets
+function _parse_info_halflife1() {
+	if ($this->DEBUG) print "DEBUG: Parsing Halflife1 info packet...\n";
+	$this->raw = substr($this->raw, 5);		// strip off response header bytes
+	$this->data['int_ipport'] 	= $this->_getnullstr();
+	list($this->data['int_ip'], $this->data['int_port']) 	= explode(':', $this->data['int_ipport']);
+	$this->data['name'] 		= $this->_getnullstr();
+	$this->data['map'] 		= $this->_getnullstr();
+	$this->data['gamedir'] 		= $this->_getnullstr();
+	$this->data['gamename'] 	= $this->_getnullstr();
+	$this->data['totalplayers']	= $this->_getbyte();
+	$this->data['maxplayers']	= $this->_getbyte();
+	$this->data['protocol']		= $this->_getbyte();	// 47
+	$this->data['servertype']	= $this->_getchar();
+	$this->data['serveros']		= $this->_getchar();
+	$this->data['serverlocked']	= $this->_getbyte();
+	$this->data['modrunning']	= $this->_getbyte();
+	$this->data['modurl']		= $this->data['modrunning'] ? $this->_getnullstr() : '';
+	$this->data['modftp']		= $this->data['modrunning'] ? $this->_getnullstr() : '';
+	$this->_getnullstr(); 					// depreciated string, ignore it
+	$this->data['modver']		= $this->_getshort() . '.' . $this->_getshort();
+	$this->data['modsize']		= $this->_getlong();
+	$this->data['modserveronly']	= $this->_getbyte();
+	$this->data['modclientdll']	= $this->_getbyte();
+	$this->data['serversecure'] 	= $this->_getbyte();
+	return $this->data;
+}
+
+// internal function to parse halflife version 2 'info' packets
+function _parse_info_halflife2() {
+	if ($this->DEBUG) print "DEBUG: Parsing Halflife2 info packet...\n";
 	$this->raw = substr($this->raw, 5);	// strip off response header bytes
 	$this->data['protocol']			= $this->_getbyte();	// 6
 	$this->data['name'] 			= $this->_getnullstr();
@@ -190,6 +213,12 @@ function _parse_info_cod4() {
 	$this->data['serveros']			= $this->_getchar();
 	$this->data['serverlocked']		= $this->_getbyte();
 	$this->data['serversecure']		= $this->_getbyte();
+	// 'the ship' game servers will have 3 extra bytes of info here
+	if ($this->data['gamedir'] == 'ship') {
+		$this->data['gamemode']		= $this->_getbyte();
+		$this->data['witnesscount']	= $this->_getbyte();
+		$this->data['witnesstime']	= $this->_getbyte();
+	}
 	$this->data['gameversion']		= $this->_getnullstr();
 	return $this->data;
 }
@@ -201,7 +230,7 @@ function query_players($ip=NULL) {
 	$res = $this->_sendquery($ip, $this->plrstr . pack("V", $this->_getchallenge($ip)));
 	if (!$res) return FALSE;
 	if (!empty($this->raw)) {
-		$this->raw = substr($this->raw, 8);		// strip off response header bytes
+		$this->raw = substr($this->raw, 5);		// strip off response header bytes
 		$this->data['activeplayers'] 	= $this->_getbyte();
 		$this->data['players'] 		= array();
 		for ($i=1; $i <= $this->data['activeplayers']; $i++) {
@@ -294,7 +323,7 @@ function query_rcon($command, $password=NULL, $ip=NULL){
 	}
 }
 
-// issues an RCON command to a cod4 version 1 server (non-source)
+// issues an RCON command to a halflife version 1 server (non-source)
 function query_rcon1($cmd, $password=NULL, $ip=NULL) {
 	if (!$ip) $ip = $this->ipaddr();
 	if (!$ip) return FALSE;
@@ -316,7 +345,7 @@ function query_rcon1($cmd, $password=NULL, $ip=NULL) {
 	}
 }
 
-// issues an RCON command to a cod4 version 2 server (source)
+// issues an RCON command to a halflife version 2 server (source)
 function query_rcon2($command, $password=NULL, $ip=NULL) {
 	if (!$ip) $ip = $this->ipaddr();
 	if (!$ip) return FALSE;
@@ -352,7 +381,7 @@ function query_rcon2($command, $password=NULL, $ip=NULL) {
 function _rconcmd2($command) {
 	$output = "";
 
-	if (!$this->_rconwrite2(PQ_C4_SERVERDATA_EXECCOMMAND, $command)) {
+	if (!$this->_rconwrite2(PQ_HL2_SERVERDATA_EXECCOMMAND, $command)) {
 		$this->errstr = "Failure sending RCON command";
 		trigger_error($this->errstr, E_USER_WARNING);
 		return FALSE;
@@ -364,20 +393,20 @@ function _rconcmd2($command) {
 
 function _rconauth2($password=NULL) {
 	if ($password == NULL) $password = $this->rconpass;
-	if (!$this->_rconwrite2(PQ_C4_SERVERDATA_AUTH, $password)) {
+	if (!$this->_rconwrite2(PQ_HL2_SERVERDATA_AUTH, $password)) {
 		trigger_error("Failure sending authentication request", E_USER_WARNING);
 		return FALSE;
 	}
 	$ack = $this->_rconread2();		// ignore the first packet returned, it's empty (SERVERDATA_RESPONSE_VALUE)
 /*
-	if ($ack['responseid'] != PQ_C4_SERVERDATA_RESPONSE_VALUE) {
+	if ($ack['responseid'] != PQ_HL2_SERVERDATA_RESPONSE_VALUE) {
 		trigger_error("Unexpected packet response", E_USER_WARNING);
 		return FALSE;
 	}
 */
 
 	$res = $this->_rconread2();		// read actual result packet
-	return ($res['responseid'] == PQ_C4_SERVERDATA_AUTH_RESPONSE && $res['requestid'] != -1);
+	return ($res['responseid'] == PQ_HL2_SERVERDATA_AUTH_RESPONSE && $res['requestid'] != -1);
 }
 
 // read a command response from the open RCON stream.
@@ -503,7 +532,7 @@ function connect_url($connectip = NULL) {
 	return $url;
 }
 
-// internal function to send a non-authoritative query to a cod4 server (NOT RCON COMMANDS)
+// internal function to send a non-authoritative query to a halflife server (NOT RCON COMMANDS)
 function _sendquery($ipport, $cmd) {
 	list($ip,$port) = explode(':', $ipport);
 	if (!$port) $port = '27015';
@@ -555,7 +584,7 @@ function _sendquery($ipport, $cmd) {
 			$header = substr($packet, 0, 4);			// get the 'sub-header ack'
 			$packet = substr($packet, 4);				// strip off 32bit ID
 
-			$size = $this->_hlver() <= 1 ? 1 : 2;			// HL1 = 1 byte, C4(source) = 2 bytes
+			$size = $this->_hlver() <= 1 ? 1 : 2;			// HL1 = 1 byte, HL2(source) = 2 bytes
 			$pnum = substr($packet, 0, $size);			// get packet number
 			$packet = substr($packet, $size);
 
@@ -577,7 +606,7 @@ function _sendquery($ipport, $cmd) {
 				$this->seq = $short >> 8;
 			} 
 
-			if ($this->seq == 0 and $size == 2) {			// first packet of a C4 response
+			if ($this->seq == 0 and $size == 2) {			// first packet of a HL2 response
 				$this->compressed = ($this->reqid >> 31 & 0x01 == 1);
 				if ($this->compressed) {			// read extra info about compression
 					$header = substr($packet, 0, 8);
@@ -645,7 +674,7 @@ function _sendquery($ipport, $cmd) {
 	return TRUE;
 }
 
-// internal function to send a query to the master cod4 servers (steam) for an IP list.
+// internal function to send a query to the master halflife servers (steam) for an IP list.
 // returns a single packet. Call method repeatedly with a new $startip to get a full list.
 function _sendmasterquery($ipport, $startip, $region=0, $filterstr="\0") {
 	list($ip,$port) = explode(':', $ipport);
@@ -691,6 +720,6 @@ function _sendmasterquery($ipport, $startip, $region=0, $filterstr="\0") {
 	return TRUE;
 }
 
-} // end of PQ_cod4 class
+} // end of PQ_halflife class
 
 ?>

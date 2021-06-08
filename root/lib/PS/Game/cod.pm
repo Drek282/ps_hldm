@@ -17,9 +17,9 @@
 #	You should have received a copy of the GNU General Public License
 #	along with PsychoStats.  If not, see <http://www.gnu.org/licenses/>.
 #
-#	$Id: cod4.pm 514 2008-07-07 18:19:50Z lifo $
+#	$Id: cod.pm 514 2008-07-07 18:19:50Z lifo $
 #
-package PS::Game::cod4;
+package PS::Game::cod;
 
 use strict;
 use warnings;
@@ -236,7 +236,7 @@ sub get_plr {
 }
 
 # player trigger for COD4. This is a dispatch for all player events. COD logs are very simple.
-sub event_cod4_plrtrigger {
+sub event_cod_plrtrigger {
 	my ($self, $timestamp, $args) = @_;
 	my ($trigger, $event) = @$args;
 	my (@parts, $p1, $p2, $plrstr, $plrstr2);
@@ -278,7 +278,7 @@ sub event_cod4_plrtrigger {
 }
 
 # COD "InitGame" event. Occurs when the server has been restarted or the map has changed.
-sub event_cod4_init {
+sub event_cod_init {
 	my ($self, $timestamp, $args) = @_;
 	my ($propstr) = @$args;
 	my $props = $self->parseprops($propstr);
@@ -293,17 +293,17 @@ sub event_cod4_init {
 	}
 
 	# previous event was a "ShutdownGame" event.
-	#if ($self->{cod4_shutdown}) {
+	#if ($self->{cod_shutdown}) {
 	#	# If the shutdown time is greater then the current time then the
 	#	# server was literally restarted. Unfortunately at this point we
 	#	# don't know when the server was restarted so we have to use the
 	#	# last known time stamp as the starting point.
-	#	if ($self->{cod4_shutdown} > $timestamp) {
-	#		$self->{gamestart} = $self->{cod4_shutdown};
-	#		$timestamp = $self->{cod4_shutdown};
+	#	if ($self->{cod_shutdown} > $timestamp) {
+	#		$self->{gamestart} = $self->{cod_shutdown};
+	#		$timestamp = $self->{cod_shutdown};
 	#		$self->info("COD server restart timestamp " . date("%Y-%m-%d %H:%i:%s\n", $timestamp));
 	#	}
-	#	$self->{cod4_shutdown} = 0;
+	#	$self->{cod_shutdown} = 0;
 	#}
 
 	# start up the new map in memory
@@ -357,12 +357,12 @@ sub event_cod4_init {
 # COD "ShutdownGame" event. Occurs when the server is shutdown or the map
 # changes. If the server was literally shutdown then the next event will be an
 # "InitGame" with a time of 00:00.
-sub event_cod4_shutdown {
+sub event_cod_shutdown {
 	#my ($self, $timestamp, $args) = @_;
 	## flag that a shutdown occured, the event() sub will handle the
 	## game reset or round restart depending on what the new timestamp is
 	## on the next event.
-	#$self->{cod4_shutdown} = $timestamp;
+	#$self->{cod_shutdown} = $timestamp;
 }
 
 sub event_attacked {

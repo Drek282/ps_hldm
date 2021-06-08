@@ -2,4 +2,3 @@
 
 
 Version 3.2.8b (in progress)
-[Changed] Call of Duty 4 support officially dropped.  Code is untested.
