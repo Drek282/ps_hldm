@@ -8,6 +8,6 @@ You should always install the base PsychoStats files first, then extract the con
 
 ## **Note**
 
-If you want hit locations advanced weapon stats there is a plugin available for that:
+If you want hit locations and advanced weapon stats there is a plugin available for that:
 
 [Lamda Core AMXX Stats Plugin for HLDM](https://forums.alliedmods.net/showthread.php?t=119618)
