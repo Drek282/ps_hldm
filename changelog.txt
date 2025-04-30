@@ -7,3 +7,4 @@ Version 3.2.8n (in progress)
 * [Improved] The CC theme is now a child theme.
 * [Added] Mod logo.
 * [Fixed] Missing declarations.
+* [Added] Link to Lambda Core in INSTALL.md.
