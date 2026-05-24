@@ -8,3 +8,4 @@ Version 3.2.8n (in progress)
 * [Added] Mod logo.
 * [Fixed] Missing declarations.
 * [Added] Link to Lambda Core in INSTALL.md.
+* [Improved] [Chore] Make pod2html happy.
